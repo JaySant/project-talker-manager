@@ -30,6 +30,7 @@ app.get('/talker/:id', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
   const token = await generatorToken();
   res.status(HTTP_OK_STATUS).json({ token });
 });
