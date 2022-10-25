@@ -13,6 +13,25 @@ async function readTalkerData() {
     }
 }
 
+function generatorToken() {
+  return crypto.randomBytes(8).toString('hex');
+}
+
+async function updateTalkerData(id, updatedTalkerData) {
+  const oldTalker = await readTalkerData();
+  const updateTalker = { id, ...updatedTalkerData };
+  const updateTalkers = oldTalker.reduce((talkerList, currentTalker) => {
+    if (currentTalker.id === updateTalker.id) return [...talkerList, updateTalker];
+    return [...talkerList, currentTalker];
+  }, []);
+  try {
+    await fs.writeFile(path.resolve(__dirname, '../talker.json'), JSON.stringify(updateTalkers));
+    return updateTalker;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function writeTalker(newTalker) {
   try {
       const oldTalker = await readTalkerData();
@@ -22,11 +41,7 @@ async function writeTalker(newTalker) {
   } catch (error) {
     console.error(error);
    }
-}
-
-function generatorToken() {
-    return crypto.randomBytes(8).toString('hex');
-}
+  }
 
 function validateLogin(req, res, next) {
     const regex = /\S+@\S+\.\S+/;
@@ -105,19 +120,21 @@ function validateWatched(req, res, next) {
 
 function validateRate(req, res, next) {
   const { talk } = req.body;
-
-  if (!talk.rate) {
-    return res.status(400).send({ message: 'O campo "rate" é obrigatório' });
-  }
+  
   if (talk.rate < 1 || talk.rate > 5) {
     return res.status(400).send({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
   }
+  if (!talk.rate) {
+    return res.status(400).send({ message: 'O campo "rate" é obrigatório' });
+  }
+
   next();
 }
  
 readTalkerData();
 generatorToken();
 writeTalker();
+updateTalkerData();
 
 module.exports = {
  readTalkerData,
@@ -130,4 +147,5 @@ module.exports = {
  validateWatched,
  validateRate,
  validateToken,
+ updateTalkerData,
 };
