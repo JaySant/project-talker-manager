@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { readTalkerData, generatorToken, 
 validateLogin, writeTalker, validateName, validateAge, 
-validateTalk, validateWatched, validateRate, validateToken, updateTalkerData, 
-} = require('./utils/fsUtils');
+validateTalk, validateWatched, validateRate, validateToken, updateTalkerData,
+deleteTalker } = require('./utils/fsUtils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -49,6 +49,12 @@ validateWatched, validateRate, async (req, res) => {
  const { id } = req.params;
  const updatedNewTalker = await updateTalkerData(Number(id), req.body);
  res.status(200).json({ ...updatedNewTalker });
+});
+
+app.delete('/talker/:id', validateToken, async (req, res) => {
+  const { id } = req.params;
+  await deleteTalker(id);
+  res.status(204).end();
 });
 
  app.listen(PORT, () => {

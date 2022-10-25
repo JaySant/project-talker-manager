@@ -32,6 +32,18 @@ async function updateTalkerData(id, updatedTalkerData) {
   }
 }
 
+async function deleteTalker(id) {
+  const talkerData = await readTalkerData();
+  const updateTalker = talkerData
+  .findIndex((currentTalker) => Number(currentTalker.id) === Number(id));
+  talkerData.splice(updateTalker, 1);
+  try {
+    await fs.writeFile(path.resolve(__dirname, '../talker.json'), JSON.stringify(updateTalker));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function writeTalker(newTalker) {
   try {
       const oldTalker = await readTalkerData();
@@ -120,7 +132,7 @@ function validateWatched(req, res, next) {
 
 function validateRate(req, res, next) {
   const { talk } = req.body;
-  
+
   if (talk.rate < 1 || talk.rate > 5) {
     return res.status(400).send({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
   }
@@ -135,6 +147,7 @@ readTalkerData();
 generatorToken();
 writeTalker();
 updateTalkerData();
+deleteTalker();
 
 module.exports = {
  readTalkerData,
@@ -148,4 +161,5 @@ module.exports = {
  validateRate,
  validateToken,
  updateTalkerData,
+ deleteTalker,
 };
