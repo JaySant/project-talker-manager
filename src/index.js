@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { readTalkerData } = require('./utils/fsUtils');
-const { generatorToken } = require('./utils/fsUtils');
-const { validateLogin } = require('./utils/fsUtils');
+const { readTalkerData, generatorToken, 
+validateLogin, writeTalker, validateName, validateAge, 
+validateTalk, validateWatched, validateRate, validateToken } = require('./utils/fsUtils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,7 +16,7 @@ app.get('/', async (_request, response) => {
     response.status(HTTP_OK_STATUS).json();
 });
 
-app.get('/talker', async (__req, res) => {
+app.get('/talker', async (_req, res) => {
    const talkerData = await readTalkerData();
    return res.status(HTTP_OK_STATUS).json(talkerData);
 });
@@ -29,9 +29,18 @@ app.get('/talker/:id', async (req, res) => {
   res.status(HTTP_OK_STATUS).json(talkerID);
 });
 
-app.post('/login', validateLogin, async (req, res) => {
+app.post('/login', validateLogin, async (_req, res) => {
   const token = await generatorToken();
   res.status(HTTP_OK_STATUS).json({ token });
+});
+
+app.post('/talker', validateToken, validateName, validateAge, validateTalk, 
+validateWatched, validateRate, async (req, res) => {
+  const talkerData = await readTalkerData();
+  const id = talkerData.length + 1;
+  const newTalker = { ...req.body, id };
+  await writeTalker(newTalker);
+  res.status(201).json(newTalker);
 });
 
  app.listen(PORT, () => {
