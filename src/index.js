@@ -24,10 +24,10 @@ app.get('/talker', async (_req, res) => {
 
 app.get('/talker/:id', async (req, res) => {
   const talkerData = await readTalkerData();
-  const id = req.params;
-  const talkerID = talkerData.find((talker) => talker.id === id);
+  const { id } = req.params;
+  const talkerID = talkerData.find((talker) => talker.id === Number(id));
   if (!talkerID) res.status(HTTP_NOT_FOUND).json({ message: 'Pessoa palestrante não encontrada' });
-  res.status(HTTP_OK_STATUS).json(talkerID);
+      return res.status(HTTP_OK_STATUS).json(talkerID);
 });
 
 app.post('/login', validateLogin, async (_req, res) => {
