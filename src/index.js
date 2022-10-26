@@ -22,14 +22,6 @@ app.get('/talker', async (_req, res) => {
    return res.status(HTTP_OK_STATUS).json(talkerData);
 });
 
-app.get('/talker/:id', async (req, res) => {
-  const talkerData = await readTalkerData();
-  const { id } = req.params;
-  const talkerID = talkerData.find((talker) => talker.id === Number(id));
-  if (!talkerID) res.status(HTTP_NOT_FOUND).json({ message: 'Pessoa palestrante não encontrada' });
-      return res.status(HTTP_OK_STATUS).json(talkerID);
-});
-
 app.post('/login', validateLogin, async (_req, res) => {
   const token = await generatorToken();
   res.status(HTTP_OK_STATUS).json({ token });
@@ -55,6 +47,22 @@ app.delete('/talker/:id', validateToken, async (req, res) => {
   const { id } = req.params;
   await deleteTalker(id);
   res.status(204).end();
+});
+
+app.get('/talker/search', validateToken, async (req, res) => {
+  const talkerData = await readTalkerData();
+  const { q } = req.query;
+  const searchTalkers = talkerData.filter((currentTalker) => currentTalker.name.includes(q));
+  if (!q) res.status(HTTP_OK_STATUS).json(talkerData);
+   return res.status(HTTP_OK_STATUS).json(searchTalkers);
+});
+
+app.get('/talker/:id', async (req, res) => {
+  const talkerData = await readTalkerData();
+  const { id } = req.params;
+  const talkerID = talkerData.find((talker) => talker.id === Number(id));
+  if (!talkerID) res.status(HTTP_NOT_FOUND).json({ message: 'Pessoa palestrante não encontrada' });
+      return res.status(HTTP_OK_STATUS).json(talkerID);
 });
 
  app.listen(PORT, () => {
